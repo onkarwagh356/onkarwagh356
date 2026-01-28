@@ -6,43 +6,26 @@ import numpy as np
 from langdetect import detect
 from flask_cors import CORS
 import os
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 app = Flask(__name__)
 CORS(app)
 
 print("Loading dataset...")
-
-# Load CSV
 data = pd.read_csv("gita_full.csv")
 
-# Load multilingual embedding model
 print("Loading model...")
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
-# Prepare language corpora
-langs = {
-    "en": data["translation_en"].astype(str).tolist(),
-    "hi": data["translation_hi"].astype(str).tolist(),
-    "mr": data["translation_mr"].astype(str).tolist()
+print("Loading FAISS indexes...")
+indexes = {
+    "en": faiss.read_index("gita_en.index"),
+    "hi": faiss.read_index("gita_hi.index"),
+    "mr": faiss.read_index("gita_mr.index")
 }
 
-# Build FAISS indexes
-indexes = {}
-for lang, texts in langs.items():
-    print(f"Building index for {lang}...")
-    emb = model.encode(texts, show_progress_bar=True)
-    dim = emb.shape[1]
-    idx = faiss.IndexFlatL2(dim)
-    idx.add(np.array(emb).astype("float32"))
-    indexes[lang] = idx
-
-print("Gita AI ready!")
-
-# ------------------ ROUTES ------------------
-
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
-    return "Gita AI API is running!"
+    return "Gita AI (low RAM) is running!"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -76,9 +59,6 @@ def chat():
 
     return jsonify(results)
 
-# ------------------ MAIN ------------------
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
-
