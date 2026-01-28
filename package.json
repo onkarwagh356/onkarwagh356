@@ -1,5 +1,7 @@
 {
+  "name": "gita-ai",
+  "version": "1.0.0",
   "scripts": {
-    "start": "node server.js"   // Or "react-scripts start" if React
+    "start": "python app.py"
   }
 }
