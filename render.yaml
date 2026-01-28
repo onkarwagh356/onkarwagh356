@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: gita-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers=1 --threads=2 --timeout 180
+    runtime: python
+    pythonVersion: 3.10.13
