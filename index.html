@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🕉 Gita AI</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    input {
+      width: 60%;
+      padding: 12px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+    .card {
+      background: #1e293b;
+      margin: 20px auto;
+      padding: 20px;
+      width: 80%;
+      border-radius: 10px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🕉 Gita AI (Auto Language)</h1>
+<p>Ask in English, Hindi or Marathi</p>
+
+<input id="msg" placeholder="Type your question..." />
+<button onclick="send()">Ask</button>
+
+<div id="chat"></div>
+
+<script>
+function send() {
+  let msg = document.getElementById("msg").value;
+
+  fetch("https://YOUR-BACKEND-URL/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: msg})
+  })
+  .then(res => res.json())
+  .then(data => {
+    let html = "";
+    data.forEach(v => {
+      html += `
+        <div class="card">
+          <b>Detected language: ${v.language}</b><br><br>
+          <b>Chapter ${v.chapter}, Verse ${v.verse}</b><br><br>
+          🕉 ${v.sanskrit}<br><br>
+          📖 ${v.answer}
+        </div>
+      `;
+    });
+    document.getElementById("chat").innerHTML = html;
+  });
+}
+</script>
+
+</body>
+</html>
