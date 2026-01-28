@@ -5,4 +5,4 @@ sentence-transformers
 faiss-cpu
 numpy
 langdetect
-gunicorn
+torch
