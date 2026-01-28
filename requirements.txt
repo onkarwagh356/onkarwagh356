@@ -1,0 +1,8 @@
+flask
+flask-cors
+pandas
+sentence-transformers
+faiss-cpu
+numpy
+langdetect
+gunicorn
