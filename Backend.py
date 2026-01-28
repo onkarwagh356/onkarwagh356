@@ -1,53 +1,58 @@
 from flask import Flask, request, jsonify
-import pip
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 from langdetect import detect
-app = Flask(__name__)
 from flask_cors import CORS
+import os
+
 app = Flask(__name__)
 CORS(app)
 
 print("Loading dataset...")
 
+# Load CSV
 data = pd.read_csv("gita_full.csv")
-info = data.info()
-data.head(5)
 
+# Load multilingual embedding model
+print("Loading model...")
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
-# Language-specific corpora
+# Prepare language corpora
 langs = {
-    "en": data['translation_en'].astype(str).tolist(),
-    "hi": data['translation_hi'].astype(str).tolist(),
-    "mr": data['translation_mr'].astype(str).tolist()
+    "en": data["translation_en"].astype(str).tolist(),
+    "hi": data["translation_hi"].astype(str).tolist(),
+    "mr": data["translation_mr"].astype(str).tolist()
 }
 
 # Build FAISS indexes
 indexes = {}
-
 for lang, texts in langs.items():
     print(f"Building index for {lang}...")
     emb = model.encode(texts, show_progress_bar=True)
     dim = emb.shape[1]
     idx = faiss.IndexFlatL2(dim)
-    idx.add(np.array(emb))
+    idx.add(np.array(emb).astype("float32"))
     indexes[lang] = idx
 
 print("Gita AI ready!")
 
+# ------------------ ROUTES ------------------
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Gita AI API is running!"
+
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_msg = request.json["message"]
+    user_msg = request.json.get("message", "")
 
     try:
         detected_lang = detect(user_msg)
     except:
         detected_lang = "en"
 
-    # Map langdetect output
     if detected_lang.startswith("hi"):
         lang = "hi"
     elif detected_lang.startswith("mr"):
@@ -55,12 +60,12 @@ def chat():
     else:
         lang = "en"
 
-    query_vec = model.encode([user_msg])
+    query_vec = model.encode([user_msg]).astype("float32")
     D, I = indexes[lang].search(query_vec, k=3)
 
     results = []
     for i in I[0]:
-        row = data.iloc[i]
+        row = data.iloc[int(i)]
         results.append({
             "language": lang,
             "chapter": int(row["chapter"]),
@@ -71,6 +76,8 @@ def chat():
 
     return jsonify(results)
 
+# ------------------ MAIN ------------------
+
 if __name__ == "__main__":
-    # Use 0.0.0.0 for cloud deployment
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
