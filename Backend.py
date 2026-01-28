@@ -12,9 +12,10 @@ CORS(app)
 
 print("Loading dataset...")
 
-data = pd.read_csv(r"C:\Users\Admin\Backend\backend\gita_full.csv")
+data = pd.read_csv("gita_full.csv")
 info = data.info()
 data.head(5)
+
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
 # Language-specific corpora
@@ -71,5 +72,5 @@ def chat():
     return jsonify(results)
 
 if __name__ == "__main__":
-
-    app.run()
+    # Use 0.0.0.0 for cloud deployment
+    app.run(host="0.0.0.0", port=5000)
