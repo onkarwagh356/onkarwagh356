@@ -14,7 +14,7 @@ print("Loading dataset...")
 data = pd.read_csv("gita_full.csv")
 
 print("Loading model...")
-model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+model = SentenceTransformer("distiluse-base-multilingual-cased-v2")
 
 print("Loading FAISS indexes...")
 indexes = {
@@ -62,3 +62,4 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
+
