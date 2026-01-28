@@ -5,7 +5,6 @@ numpy
 langdetect
 faiss-cpu
 gunicorn
-sentence-transformers
+
 torch==2.0.1
-
-
+sentence-transformers
