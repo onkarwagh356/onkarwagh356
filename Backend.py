@@ -6,7 +6,9 @@ import faiss
 import numpy as np
 from langdetect import detect
 app = Flask(__name__)
-
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(app)
 
 print("Loading dataset...")
 
@@ -69,4 +71,5 @@ def chat():
     return jsonify(results)
 
 if __name__ == "__main__":
+
     app.run()
