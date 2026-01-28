@@ -1,8 +1,12 @@
 flask
 flask-cors
 pandas
-sentence-transformers
-faiss-cpu
 numpy
 langdetect
-torch
+faiss-cpu
+gunicorn
+
+torch==2.1.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+sentence-transformers
